@@ -1,0 +1,21 @@
+{
+  "name": "email-service",
+  "version": "0.0.0",
+  "description": "Kleros email notification service",
+  "main": "index.js",
+  "author": "Sam Vitello <sam@kleros.io>",
+  "license": "MIT",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "axios": "^0.18.0",
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4",
+    "morgan": "^1.9.1",
+    "sequelize": "^4.41.2",
+    "sqlite3": "^4.0.4",
+    "web3": "^1.0.0-beta.37",
+    "web3-provider-engine": "^14.1.0"
+  }
+}
