@@ -1,11 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
   const Listeners = sequelize.define('Listeners', {
-    projectId: {
-      type: DataTypes.INTEGER,
-      references: 'Projects',
-      referencesKey: 'projectId',
-      primaryKey: true
-    },
     contractAddress: {
       type: DataTypes.STRING,
       references: 'Contracts',

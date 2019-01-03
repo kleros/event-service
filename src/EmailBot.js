@@ -101,25 +101,36 @@ class EventForwarder {
         }
       )
       console.log(events.length)
+      let error = false
       await Promise.all(events.map(async event => {
         console.log("found event!")
         console.log(event.event)
         const callbacks = this.eventWebhooks[event.event] || []
-        await Promise.all(callbacks.map(uri => this.sendCallback(event, uri)))
+        try {
+          console.log(callbacks)
+          await Promise.all(callbacks.map(uri => this.sendCallback(event, uri)))
+        } catch (err) {
+          error = true
+          console.log(err)
+          return
+        }
       }))
 
-      console.log("updating")
-      // update last block in db
-      await db.Contracts.update({'lastBlock': lastBlock}, {
-        where: {
-          address: this.contractAddress
-        }
-      })
-      this.lastBlock = lastBlock
+      if (!error) {
+        console.log("updating")
+        // update last block in db
+        await db.Contracts.update({'lastBlock': lastBlock}, {
+          where: {
+            address: this.contractAddress
+          }
+        })
+        this.lastBlock = lastBlock
+      }
     }
   }
 
   async sendCallback(event, callbackUri) {
+    console.log(callbackUri)
     return axios.post(callbackUri, event)
   }
 }
