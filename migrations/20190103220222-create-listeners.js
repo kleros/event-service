@@ -1,23 +1,20 @@
 'use strict';
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('Listeners', {
-      eventName: {
-        type: Sequelize.STRING,
-        primaryKey: true
+    queryInterface.createTable('Listeners', {
+      id: {
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+        type: Sequelize.INTEGER
       },
       contractAddress: {
         type: Sequelize.STRING,
-        onDelete: 'CASCADE',
-        references: {
-          model: 'Contracts',
-          key: 'address'
-        },
-        primaryKey: true
+        references: 'Contracts',
+        referencesKey: 'address',
       },
-      callback: {
+      eventName: {
         type: Sequelize.STRING,
-        primaryKey: true
       },
       createdAt: {
         allowNull: false,
@@ -28,6 +25,13 @@ module.exports = {
         type: Sequelize.DATE
       }
     });
+
+    queryInterface.addConstraint('Listeners', ['eventName', 'contractAddress'], {
+      type: 'unique',
+      name: 'contract_event_listener'
+    });
+
+    return queryInterface
   },
   down: (queryInterface, Sequelize) => {
     return queryInterface.dropTable('Listeners');

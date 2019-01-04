@@ -78,7 +78,7 @@ router.get('/contracts', async (req, res) => {
 *                Listeners                   *
 **********************************************/
 
-router.post('/projects/:projectId/contracts/:address/listeners/:eventName', async (req, res) => {
+router.post('/contracts/:address/listeners/:eventName', async (req, res) => {
   if (req.body.callback == null) return res.status(400).send(
     'Parameter "callback" required'
   )
@@ -97,7 +97,7 @@ router.post('/projects/:projectId/contracts/:address/listeners/:eventName', asyn
 
 })
 
-router.get('/projects/:projectId/contracts/:address/listeners/:eventName', async (req, res) => {
+router.get('/contracts/:address/listeners/:eventName', async (req, res) => {
   try {
     const listener = await controllers.listener.getListener(
       req.params.projectId,
@@ -110,7 +110,7 @@ router.get('/projects/:projectId/contracts/:address/listeners/:eventName', async
   }
 })
 
-router.delete('/projects/:projectId/contracts/:address/listeners/:eventName', async (req, res) => {
+router.delete('/contracts/:address/listeners/:eventName', async (req, res) => {
   try {
     await controllers.listener.deleteListener(
       req.params.projectId,

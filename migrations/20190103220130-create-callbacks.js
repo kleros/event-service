@@ -1,19 +1,20 @@
 'use strict';
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('Contracts', {
-      address: {
-        type: Sequelize.STRING,
+    return queryInterface.createTable('Callbacks', {
+      id: {
+        allowNull: false,
+        autoIncrement: true,
         primaryKey: true,
-        allowNull: false
+        type: Sequelize.INTEGER
       },
-      abi: {
-        type: Sequelize.JSON,
-        allowNull: false
-      },
-      lastBlock: {
+      listenerID: {
         type: Sequelize.INTEGER,
-        defaultValue: 0
+        references: 'Listeners',
+        referencesKey: 'id',
+      },
+      callback: {
+        type: Sequelize.STRING,
       },
       createdAt: {
         allowNull: false,
@@ -26,6 +27,6 @@ module.exports = {
     });
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('Contracts');
+    return queryInterface.dropTable('Callbacks');
   }
 };

@@ -1,17 +1,15 @@
 const db = require('../models')
 
-const newListener = async (projectId, address, eventName, callback) => {
+const newListener = async (address, callback) => {
   const item = await db.Listeners.create({
-      projectId,
       contractAddress: address,
-      eventName,
-      callback
+      eventName
   })
 
   // start listener
   try {
     const app = require('../index')
-    await app.get('botFactory').startBot(address)
+    await app.get('botFactory').startBot(item.id)
   } catch (err) {
     console.log(err)
   }
