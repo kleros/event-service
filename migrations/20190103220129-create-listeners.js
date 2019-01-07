@@ -10,11 +10,14 @@ module.exports = {
       },
       contractAddress: {
         type: Sequelize.STRING,
-        references: 'Contracts',
-        referencesKey: 'address',
+        references: {
+          model: 'Contracts',
+          key: 'address'
+        }
       },
       eventName: {
         type: Sequelize.STRING,
+        allowNull: false
       },
       createdAt: {
         allowNull: false,
@@ -26,12 +29,10 @@ module.exports = {
       }
     });
 
-    queryInterface.addConstraint('Listeners', ['eventName', 'contractAddress'], {
+    return queryInterface.addConstraint('Listeners', ['eventName', 'contractAddress'], {
       type: 'unique',
       name: 'contract_event_listener'
     });
-
-    return queryInterface
   },
   down: (queryInterface, Sequelize) => {
     return queryInterface.dropTable('Listeners');

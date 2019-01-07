@@ -4,12 +4,16 @@ module.exports = {
     return queryInterface.createTable('Contracts', {
       address: {
         type: Sequelize.STRING,
-        allowNull: false
-        primaryKey: true,
+        allowNull: false,
+        primaryKey: true
       },
       abi: {
         type: Sequelize.STRING,
         allowNull: false
+      },
+      lastBlock: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0
       },
       createdAt: {
         allowNull: false,

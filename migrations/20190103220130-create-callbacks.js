@@ -1,7 +1,7 @@
 'use strict';
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('Callbacks', {
+    queryInterface.createTable('Callbacks', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -10,8 +10,10 @@ module.exports = {
       },
       listenerID: {
         type: Sequelize.INTEGER,
-        references: 'Listeners',
-        referencesKey: 'id',
+        references: {
+          model: 'Listeners',
+          key: 'id'
+        },
       },
       callback: {
         type: Sequelize.STRING,
@@ -24,6 +26,11 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE
       }
+    });
+
+    return queryInterface.addConstraint('Callbacks', ['callback', 'listenerID'], {
+      type: 'unique',
+      name: 'listener_callback'
     });
   },
   down: (queryInterface, Sequelize) => {

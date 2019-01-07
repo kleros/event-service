@@ -1,10 +1,16 @@
+const itemExistsError = "Item already exists."
+const missingForeignKeyError = "Missing Foreign Key. Are you sure you contract and/or project have been created?"
+
 module.exports.getSQLErrorMessage = err => {
   switch (err.name) {
     case "SequelizeUniqueConstraintError":
-      return "Item already exists."
+      return itemExistsError
     case "SequelizeForeignKeyConstraintError":
-      return "Missing Foreign Key. Are you sure you contract and/or project have been created?"
+      return missingForeignKeyError
     default:
       return `There was an error interacting with the database: ${err}`
   }
 }
+
+module.exports.itemExistsError = itemExistsError
+module.exports.missingForeignKeyError = missingForeignKeyError

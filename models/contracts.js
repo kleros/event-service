@@ -1,8 +1,12 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
   const Contracts = sequelize.define('Contracts', {
-    address: DataTypes.STRING,
-    abi: DataTypes.STRING
+    address: {
+      type: DataTypes.STRING,
+      primaryKey: true
+    },
+    abi: DataTypes.STRING,
+    lastBlock: DataTypes.INTEGER
   }, {});
   Contracts.associate = function(models) {
     // associations can be defined here

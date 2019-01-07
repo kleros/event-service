@@ -130,7 +130,6 @@ class EventForwarder {
   }
 
   async sendCallback(event, callbackUri) {
-    console.log(callbackUri)
     return axios.post(callbackUri, event)
   }
 }

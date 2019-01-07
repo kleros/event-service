@@ -5,40 +5,14 @@ const getSQLErrorMessage = require('../utils/errors').getSQLErrorMessage
 const router = express.Router()
 
 /*********************************************
-*                Projects                    *
-**********************************************/
-
-router.post('/projects/:name', async (req, res) => {
-  if (req.params.name == null) return res.status(400).send(
-    'Parameter "name" required'
-  )
-
-  try {
-    const newProject = await controllers.project.newProject(req.params.name)
-    res.status(201).json(newProject)
-  } catch (err) {
-    res.status(500).send(getSQLErrorMessage(err))
-  }
-})
-
-router.get('/projects/:name', async (req, res) => {
-  if (req.params.name == null) return res.status(400).send(
-    'Parameter "name" required'
-  )
-
-  const project = await controllers.project.getProject(req.params.name)
-  res.status(200).json(project)
-})
-
-router.get('/projects', async (req, res) => {
-  const projects = await controllers.project.getProjects()
-  res.status(200).json(projects)
-})
-
-/*********************************************
 *                Contracts                   *
 **********************************************/
 
+/**
+ * Add a new contract
+ * @param {string} address - The contract address
+ * @returns {object} The new contract address
+ */
 router.post('/contracts/:address', async (req, res) => {
   if (req.body.abi == null) return res.status(400).send(
     'Parameter "abi" required'
@@ -54,6 +28,11 @@ router.post('/contracts/:address', async (req, res) => {
   }
 })
 
+/**
+ * Get a registered contract
+ * @param {string} address - The contract address
+ * @returns {object} The registed contract or null if it does not exist
+ */
 router.get('/contracts/:address', async (req, res) => {
   try {
     const contract = await controllers.contract.getContract(
@@ -65,6 +44,10 @@ router.get('/contracts/:address', async (req, res) => {
   }
 })
 
+/**
+ * Get all registered contract addresses
+ * @returns {string[]} Array of all registered contract addresses (ABI's omitted for brevity)
+ */
 router.get('/contracts', async (req, res) => {
   try {
     const addresses = await controllers.contract.getContractAddresses()
@@ -74,35 +57,15 @@ router.get('/contracts', async (req, res) => {
   }
 })
 
-/*********************************************
-*                Listeners                   *
-**********************************************/
-
-router.post('/contracts/:address/listeners/:eventName', async (req, res) => {
-  if (req.body.callback == null) return res.status(400).send(
-    'Parameter "callback" required'
-  )
-
+/**
+ * Get all listeners registered on a contract.
+ * @param {string} address - The contract address.
+ * @returns {object[]} - An array of objects that include the eventName, callback and callbackID of all registered listeners for a contract.
+ */
+router.get('/contracts/:address/listeners', async (req, res) => {
   try {
-    const listener = await controllers.listener.newListener(
-      req.params.projectId,
+    const listener = await controllers.listener.getListenersForContract(
       req.params.address,
-      req.params.eventName,
-      req.body.callback
-    )
-    res.status(201).json(listener)
-  } catch (err) {
-    res.status(500).send(getSQLErrorMessage(err))
-  }
-
-})
-
-router.get('/contracts/:address/listeners/:eventName', async (req, res) => {
-  try {
-    const listener = await controllers.listener.getListener(
-      req.params.projectId,
-      req.params.address,
-      req.params.eventName
     )
     res.status(200).json(listener)
   } catch (err) {
@@ -110,17 +73,100 @@ router.get('/contracts/:address/listeners/:eventName', async (req, res) => {
   }
 })
 
-router.delete('/contracts/:address/listeners/:eventName', async (req, res) => {
+/**
+ * Remove a listener by callback address.
+ * @param {string} address - The contract address.
+ * @param {string} callbackURI - The registered callback URI.
+ * @returns {null} status 202.
+ */
+router.delete('/contracts/:address/listeners/:eventName/callbacks', async (req, res) => {
+  if (req.body.callbackURI == null) return res.status(400).send(
+    'Parameter "callbackURI" required'
+  )
+
   try {
-    await controllers.listener.deleteListener(
-      req.params.projectId,
+    await controllers.listener.deleteCallback(
       req.params.address,
-      req.params.eventName
+      req.params.eventName,
+      req.body.callbackURI
     )
     res.status(202).send()
   } catch (err) {
     res.status(500).send(getSQLErrorMessage(err))
   }
+})
+
+/*********************************************
+*                Listeners                   *
+**********************************************/
+
+/**
+ * Add a new listener. You must include contractABI in the body if the contract has not been registered before.
+ * @param address
+ */
+router.post('/contracts/:address/listeners/:eventName/callbacks', async (req, res) => {
+  if (req.body.callbackURI == null) return res.status(400).send(
+    'Parameter "callbackURI" required'
+  )
+
+  const contract = await controllers.contract.getContract(
+    req.params.address
+  )
+  const contractExists = !!contract
+  // If contract does not yet exist an abi is required
+  if (contractExists === false && req.body.contractABI == null)
+    return res.status(400).send(
+      'Parameter "contractABI" required because contract has not been registered before.'
+    )
+
+  // add contract if it does not exist
+  if (!contractExists) {
+    try {
+      await controllers.contract.newContract(
+        req.params.address,
+        req.body.contractABI
+      )
+    } catch (err) {
+      return res.status(500).send(getSQLErrorMessage(err))
+    }
+  }
+
+  // Add listener if it does not exist
+  let listener = await controllers.listener.getListener(
+    req.params.address,
+    req.params.eventName
+  )
+
+  if (listener == null) {
+    try {
+      listener = await controllers.listener.newListener(
+        req.params.address,
+        req.params.eventName
+      )
+    } catch (err) {
+      return res.status(500).send(getSQLErrorMessage(err))
+    }
+  }
+
+  // Add callback if it does not exist
+  let callback
+  try {
+    callback = await controllers.callbacks.newCallback(
+      listener.id,
+      req.body.callbackURI
+    )
+  } catch (err) {
+    return res.status(500).send(getSQLErrorMessage(err))
+  }
+
+  // restsart/start listener
+
+  return res.status(201).json({
+    callbackID: callback.id,
+    callbackURI: req.body.callbackURI,
+    contractAddress: req.params.address,
+    eventName: req.params.eventName
+  })
 })
 
 module.exports = router
