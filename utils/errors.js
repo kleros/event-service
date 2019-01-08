@@ -1,5 +1,5 @@
 const itemExistsError = "Item already exists."
-const missingForeignKeyError = "Missing Foreign Key. Are you sure you contract and/or project have been created?"
+const missingForeignKeyError = "Missing Foreign Key. Are you sure you contract has been created?"
 
 module.exports.getSQLErrorMessage = err => {
   switch (err.name) {

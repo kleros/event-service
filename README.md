@@ -8,8 +8,6 @@ This service is hosted at:
 
 ### Routes
 
-To subscribe to an event on a smart contract with a callback use
-
 #### `https://events.kleros.io/contracts/:address/listeners/:eventName/callbacks`
 
 `POST`
@@ -36,7 +34,6 @@ Remove a subscription callback.
 ```
 body = {
   callbackURI: 'https://my-callback-uri.com',
-  contractABI: [...]
 }
 ```
 
