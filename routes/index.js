@@ -1,4 +1,6 @@
 const express = require('express')
+const Web3 = require('web3')
+
 const controllers = require('../controllers')
 const getSQLErrorMessage = require('../utils/errors').getSQLErrorMessage
 
@@ -90,6 +92,11 @@ router.delete('/contracts/:address/listeners/:eventName/callbacks', async (req, 
       req.params.eventName,
       req.body.callbackURI
     )
+
+    // restsart/start listener
+    const app = require('../index')
+    await app.get('botFactory').startListening(req.params.address)
+
     res.status(202).send()
   } catch (err) {
     res.status(500).send(getSQLErrorMessage(err))
@@ -121,10 +128,21 @@ router.post('/contracts/:address/listeners/:eventName/callbacks', async (req, re
 
   // add contract if it does not exist
   if (!contractExists) {
+    // Start at current block so it doesn't bombard users for past notifications if it is an old contract
+    const web3 = new Web3(process.env.PROVIDER_URI)
+    const currentBlock = await new Promise(
+      (reject, resolve) =>
+        web3.eth.getBlockNumber((result, err) => {
+          if (err) reject(err)
+          resolve(result)
+        })
+      )
+
     try {
       await controllers.contract.newContract(
         req.params.address,
         req.body.contractABI
+        currentBlock
       )
     } catch (err) {
       return res.status(500).send(getSQLErrorMessage(err))
@@ -160,6 +178,8 @@ router.post('/contracts/:address/listeners/:eventName/callbacks', async (req, re
   }
 
   // restsart/start listener
+  const app = require('../index')
+  await app.get('botFactory').startListening(req.params.address)
 
   return res.status(201).json({
     callbackID: callback.id,

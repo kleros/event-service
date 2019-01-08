@@ -3,7 +3,6 @@ const db = require('../models')
 const Web3 = require('web3')
 const ZeroClientProvider = require('web3-provider-engine/zero')
 const axios = require('axios')
-// const sgMail = require('@sendgrid/mail')
 
 /** This will watch for events that have not been processed yet and send a webhook
 */
@@ -23,26 +22,21 @@ class EventForwarder {
     this.timer
     // web3
     this.web3Provider = ZeroClientProvider({
-      rpcUrl: 'https://kovan.infura.io'
+      rpcUrl: process.env.PROVIDER_URI
     })
     this.web3 = new Web3(this.web3Provider)
     // instantiate contract
     this.contractInstance = new this.web3.eth.Contract(this.contractABI, this.contractAddress)
     // last block checked
     this.lastBlock = 0
-    // setup sendgrid
-    // sgMail.setApiKey(process.env.SENDGRID_API_KEY)
-    // sgMail.setSubstitutionWrappers('{{', '}}')
   }
 
   async _init() {
-    console.log("IN BOT INIT")
     // get last processed block
     const contractData = await db.Contracts.findOne({
       where: {'address': this.contractAddress}
     })
     this.lastBlock = contractData.lastBlock
-    console.log(this.lastBlock)
   }
 
   /** Entry Point
@@ -72,16 +66,11 @@ class EventForwarder {
   }
 
   async updateWebhooks(eventWebhooks) {
-    // stop bot so there is no race conditions
-    this.stop()
     // set new webhook callbacks
     this.eventWebhooks = eventWebhooks
-    // restart
-    return this.start()
   }
 
   async checkForEvents() {
-    console.log("checking for events")
     const nextBlock = this.lastBlock + 1
     const lastBlock = await new Promise(
       (reject, resolve) =>
@@ -90,7 +79,7 @@ class EventForwarder {
           resolve(result)
         })
       )
-    console.log(`range: ${nextBlock} - ${lastBlock}`)
+
     // check for new bid events
     if (nextBlock <= lastBlock) {
       const events = await this.contractInstance.getPastEvents(
@@ -100,32 +89,23 @@ class EventForwarder {
           toBlock: lastBlock
         }
       )
-      console.log(events.length)
-      let error = false
+
       await Promise.all(events.map(async event => {
-        console.log("found event!")
-        console.log(event.event)
         const callbacks = this.eventWebhooks[event.event] || []
         try {
-          console.log(callbacks)
           await Promise.all(callbacks.map(uri => this.sendCallback(event, uri)))
         } catch (err) {
-          error = true
-          console.log(err)
-          return
+          console.error(err)
         }
       }))
 
-      if (!error) {
-        console.log("updating")
-        // update last block in db
-        await db.Contracts.update({'lastBlock': lastBlock}, {
-          where: {
-            address: this.contractAddress
-          }
-        })
-        this.lastBlock = lastBlock
-      }
+      // update last block in db
+      await db.Contracts.update({'lastBlock': lastBlock}, {
+        where: {
+          address: this.contractAddress
+        }
+      })
+      this.lastBlock = lastBlock
     }
   }
 

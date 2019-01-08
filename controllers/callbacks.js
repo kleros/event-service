@@ -6,14 +6,6 @@ const newCallback = async (listenerID, callbackURI) => {
       callback: callbackURI
   })
 
-  // start listener
-  // try {
-  //   const app = require('../index')
-  //   await app.get('botFactory').startBot(item.id)
-  // } catch (err) {
-  //   console.log(err)
-  // }
-
   return item
 }
 

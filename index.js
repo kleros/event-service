@@ -22,6 +22,6 @@ server.listen(port)
 
 // set up Bot factory
 const botFactory = new BotFactory()
-// botFactory.start()
+botFactory.start()
 app.set('botFactory', botFactory)
 module.exports = app

@@ -1,13 +1,14 @@
 const db = require('../models')
 
-const newContract = async (address, abi) => {
+const newContract = async (address, abi, lastBlock = 0) => {
   if (abi instanceof Array)
     abi = JSON.stringify(abi)
 
   return db.Contracts.create(
     {
       address,
-      abi
+      abi,
+      lastBlock
     }
   )
 }
