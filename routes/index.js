@@ -141,7 +141,7 @@ router.post('/contracts/:address/listeners/:eventName/callbacks', async (req, re
     try {
       await controllers.contract.newContract(
         req.params.address,
-        req.body.contractABI
+        req.body.contractABI,
         currentBlock
       )
     } catch (err) {
