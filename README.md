@@ -1,7 +1,7 @@
 # Event Notification Service
 
 This service is hosted at:
-- `https://staging.events.kleros.io` to subscribe to events on the `Kovan` testnet
+- `https://kovan-events.kleros.io` to subscribe to events on the `Kovan` testnet
 - `https://events.kleros.io` to subscribe to events on the Ethereum mainnet
 
 ## Basic Usage

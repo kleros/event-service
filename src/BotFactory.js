@@ -1,5 +1,5 @@
 const db = require('../models')
-const EmailBot = require('./EmailBot')
+const EventBot = require('./EventBot')
 
 class BotFactory {
   constructor() {
@@ -69,7 +69,7 @@ class BotFactory {
         }
       })).abi
 
-      const newBot = new EmailBot(contractAddress, JSON.parse(abi), listenerCallbacks)
+      const newBot = new EventBot(contractAddress, JSON.parse(abi), listenerCallbacks)
       const newIndex = this.activeBots.push(newBot) - 1
       this.contractIndexes[contractAddress] = newIndex
 
