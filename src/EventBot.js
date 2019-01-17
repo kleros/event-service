@@ -48,20 +48,26 @@ class EventForwarder {
     // run on a cycle to keep alive
     this.fetchEventsCycle()
     this.running = true
+    this.cycle_stop = false
   }
 
   stop() {
     // will not stop child processes
+    this.running = false
     this.cycle_stop = true
     clearTimeout(this.timer)
   }
 
   async fetchEventsCycle() {
     this.timer = setTimeout(async () => {
-      await this.checkForEvents()
+      try {
+        await this.checkForEvents()
 
-      if (!this.cycle_stop) this.fetchEventsCycle()
-      else this.running = false
+        if (!this.cycle_stop) this.fetchEventsCycle()
+      } catch (err) {
+        console.error(err)
+        running = false
+      }
     }, 15 * 1000) // every 15 seconds check for new events
   }
 
@@ -110,7 +116,12 @@ class EventForwarder {
   }
 
   async sendCallback(event, callbackUri) {
-    return axios.post(callbackUri, event)
+    const response = await axios.post(callbackUri, event)
+    if (process.env.NODE_ENV == 'development')
+      console.log(response.data)
+    if (!response.data.sent) {
+      console.log(response.data.reason)
+    }
   }
 }
 

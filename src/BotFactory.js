@@ -19,6 +19,7 @@ class BotFactory {
   }
 
   async startListening(contractAddress) {
+    console.log(`(re)starting listener for ${contractAddress}`)
     let listenerCallbacks = {}
 
     // find all unique events for contract
