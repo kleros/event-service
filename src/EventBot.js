@@ -88,13 +88,32 @@ class EventForwarder {
 
     // check for new bid events
     if (nextBlock <= lastBlock) {
-      const events = await this.contractInstance.getPastEvents(
+      let events = await this.contractInstance.getPastEvents(
         'allEvents',
         {
           fromBlock: nextBlock,
           toBlock: lastBlock
         }
       )
+
+      // Hack to remove duplicate Drawn events
+      if (events.length > 0) {
+        const splicedEvents = []
+        const drawnMap = {}
+        for (let i=0; i<events.length; i++) {
+          if (events[i].event === 'Draw') {
+            // Skip if we already have a drawn event for this dipsute and address
+            if (drawnMap[`${events[i].returnValues._address}-${events[i].returnValues._disputeID}`])
+              continue
+
+            drawnMap[`${events[i].returnValues._address}-${events[i].returnValues._disputeID}`] = true
+          }
+
+          splicedEvents.push(events[i])
+        }
+
+        events = splicedEvents
+      }
 
       await Promise.all(events.map(async event => {
         const callbacks = this.eventWebhooks[event.event] || []
