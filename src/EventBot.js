@@ -21,10 +21,7 @@ class EventForwarder {
     this.cycleStop = false
     this.timer
     // web3
-    this.web3Provider = ZeroClientProvider({
-      rpcUrl: process.env.PROVIDER_URI
-    })
-    this.web3 = new Web3(this.web3Provider)
+    this.web3 = new Web3(process.env.PROVIDER_URI)
     // instantiate contract
     this.contractInstance = new this.web3.eth.Contract(this.contractABI, this.contractAddress)
     // last block checked

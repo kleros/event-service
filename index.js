@@ -21,7 +21,7 @@ app.use(authMiddleware)
 // Routes
 app.use(router)
 // Setup a default catch-all route that sends back a welcome message in JSON format.
-const port = parseInt(process.env.PORT, 10) || 8000
+const port = parseInt(process.env.PORT, 8000) || 8000
 app.set('port', port)
 const server = http.createServer(app)
 server.listen(port)
