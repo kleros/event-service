@@ -129,7 +129,6 @@ router.post('/contracts/:address/listeners/:eventName/callbacks', async (req, re
   // add contract if it does not exist
   if (!contractExists) {
     // Start at current block so it doesn't bombard users for past notifications if it is an old contract
-    print(process.env.PROVIDER_URI)
     const web3 = new Web3(process.env.PROVIDER_URI)
     const currentBlock = await new Promise(
       (reject, resolve) =>
