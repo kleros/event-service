@@ -95,6 +95,7 @@ class EventForwarder {
 
       // Hack to remove duplicate Drawn events
       if (events.length > 0) {
+        console.log(events.length)
         const splicedEvents = []
         const drawnMap = {}
         for (let i=0; i<events.length; i++) {
@@ -132,6 +133,7 @@ class EventForwarder {
   }
 
   async sendCallback(event, callbackUri) {
+    console.log('callback going out')
     const response = await axios.post(callbackUri, event)
     if (process.env.NODE_ENV == 'development')
       console.log(response.data)
