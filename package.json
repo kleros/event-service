@@ -15,7 +15,7 @@
     "express": "^4.16.4",
     "morgan": "^1.9.1",
     "pm2": "^3.2.9",
-    "sequelize": "^4.41.2",
+    "sequelize": "^5.15.1",
     "sqlite3": "^4.0.4",
     "web3": "^1.2.6",
     "web3-provider-engine": "^14.1.0"
