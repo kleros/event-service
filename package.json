@@ -12,7 +12,7 @@
     "axios": "^0.21.1",
     "body-parser": "^1.18.3",
     "dotenv": "^6.2.0",
-    "express": "^4.16.4",
+    "express": "^4.17.3",
     "morgan": "^1.9.1",
     "pm2": "^3.2.9",
     "sequelize": "^5.15.1",
